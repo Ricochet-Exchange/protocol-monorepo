@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: AGPLv3
 /* solhint-disable not-rely-on-time */
-pragma solidity 0.7.6;
+pragma solidity ^0.8.0;
 
 import { ISuperfluid } from "../interfaces/superfluid/ISuperfluid.sol";
 import { ISuperAgreement } from "../interfaces/superfluid/ISuperAgreement.sol";
 import { ISuperfluidGovernance } from "../interfaces/superfluid/ISuperfluidGovernance.sol";
 import { ISuperfluidToken } from "../interfaces/superfluid/ISuperfluidToken.sol";
 
-import { Math } from "@openzeppelin/contracts/math/Math.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { SafeCast } from "@openzeppelin/contracts/utils/SafeCast.sol";
-import { SignedSafeMath } from "@openzeppelin/contracts/math/SignedSafeMath.sol";
-import { FixedSizeData } from "../libs/FixedSizeData.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
+import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import { SignedSafeMath } from "@openzeppelin/contracts/utils/math/SignedSafeMath.sol";
+import { FixedSizeData } from "../utils/FixedSizeData.sol";
 
 
 /**
@@ -104,7 +104,7 @@ abstract contract SuperfluidToken is ISuperfluidToken
                 .add(agreementDynamicBalance)
                 .sub(
                     agreementDeposit > agreementOwedDeposit ?
-                    (agreementDeposit - agreementOwedDeposit).toInt256() : 0
+                    (agreementDeposit - agreementOwedDeposit).toInt256() : int256(0)
                 );
         }
     }
@@ -159,7 +159,7 @@ abstract contract SuperfluidToken is ISuperfluidToken
             realtimeBalanceOf(account, timestamp);
         // Available Balance = Realtime Balance - Max(0, Deposit - OwedDeposit)
         int realtimeBalance = availableBalance.add(
-            (deposit > owedDeposit ? (deposit - owedDeposit).toInt256() : 0)
+            (deposit > owedDeposit ? (deposit - owedDeposit).toInt256() : int256(0))
         );
         return realtimeBalance >= 0;
     }

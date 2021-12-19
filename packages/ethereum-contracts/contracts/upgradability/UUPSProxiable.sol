@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPLv3
-pragma solidity 0.7.6;
+pragma solidity ^0.8.0;
 
 import { UUPSUtils } from "./UUPSUtils.sol";
-import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
-
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 /**
  * @dev UUPS (Universal Upgradeable Proxy Standard) Proxiable contract.
  */

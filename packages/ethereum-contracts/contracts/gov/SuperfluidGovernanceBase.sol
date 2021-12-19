@@ -25,7 +25,7 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
     }
 
     // host => superToken => config
-    mapping (address => mapping (address => mapping (bytes32 => Value))) internal _configs;
+    mapping (address => mapping (address => mapping (bytes32 => Value))) private _configs;
 
     /**************************************************************************
     /* ISuperfluidGovernance interface
@@ -71,23 +71,21 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
         }
     }
 
-    function batchUpdateSuperTokenLogic(
+    function updateSuperTokenLogic(
         ISuperfluid host,
-        ISuperToken[] calldata tokens
+        ISuperToken token
     )
         external override
         onlyAuthorized(host)
     {
-        for (uint i = 0; i < tokens.length; ++i) {
-            host.updateSuperTokenLogic(tokens[i]);
-        }
+        host.updateSuperTokenLogic(token);
     }
 
     event ConfigChanged(
         ISuperfluid indexed host,
         ISuperfluidToken indexed superToken,
         bytes32 key,
-		bool isKeySet,
+        bool set,
         uint256 value);
 
     function _setConfig(
@@ -168,7 +166,7 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
     event RewardAddressChanged(
         ISuperfluid indexed host,
         ISuperfluidToken indexed superToken,
-        bool isKeySet,
+        bool set,
         address rewardAddress);
 
     function getRewardAddress(
@@ -212,7 +210,7 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
     event CFAv1LiquidationPeriodChanged(
         ISuperfluid indexed host,
         ISuperfluidToken indexed superToken,
-        bool isKeySet,
+        bool set,
         uint256 liquidationPeriod);
 
     function getCFAv1LiquidationPeriod(
@@ -257,7 +255,7 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
     event TrustedForwarderChanged(
         ISuperfluid indexed host,
         ISuperfluidToken indexed superToken,
-        bool isKeySet,
+        bool set,
         address forwarder,
         bool enabled);
 
@@ -316,74 +314,19 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
     }
 
     /**
-     * @dev Whitelist a new app using a onetime key
-     * @param key is a deployer specific hash key which can be used once to register an app
+     * @dev Whitelist a new app using the secret key
      *
      * NOTE:
-     * To generate the key, use the SuperfluidGovernanceConfigs.getAppRegistrationConfigKey
+     * To generate the secret key, use the SuperfluidGovernanceConfigs.getAppWhiteListingSecretKey
      * offchain.
      */
     function whiteListNewApp(
         ISuperfluid host,
-        bytes32 key
+        bytes32 secretKey
     )
         external
     {
-        _setConfig(host, ISuperfluidToken(address(0)), key, 1);
-    }
-
-    /**
-     * @dev tells if the given factory is authorized to register apps
-     */
-    function isAuthorizedAppFactory(
-        ISuperfluid host,
-        address factory
-    )
-        public view
-        returns (bool)
-    {
-        return getConfigAsUint256(
-            host, ISuperfluidToken(address(0)),
-            SuperfluidGovernanceConfigs.getAppFactoryConfigKey(factory)) == 1;
-    }
-
-    /**
-     * @dev allows the given factory to register new apps without requiring onetime keys
-     * @param factory must be an initialized contract
-     */
-    function authorizeAppFactory(
-        ISuperfluid host,
-        address factory
-    )
-        public
-    {
-        // check if contract
-        {
-            uint256 cs;
-            // solhint-disable-next-line no-inline-assembly
-            assembly { cs := extcodesize(factory) }
-            require(cs > 0, "SFGov: factory must be a contract");
-        }
-
-        _setConfig(
-            host, ISuperfluidToken(address(0)),
-            SuperfluidGovernanceConfigs.getAppFactoryConfigKey(factory),
-            1);
-    }
-
-    /**
-     * @dev withdraws authorization from a factory to register new apps.
-     * Doesn't affect apps previously registered by the factory.
-     */
-    function unauthorizeAppFactory(
-        ISuperfluid host,
-        address factory
-    )
-        public
-    {
-        _clearConfig(
-            host, ISuperfluidToken(address(0)),
-            SuperfluidGovernanceConfigs.getAppFactoryConfigKey(factory));
+        _setConfig(host, ISuperfluidToken(address(0)), secretKey, 1);
     }
 
     // TODO: would like to use virtual modifier, but solhint doesn't like it atm

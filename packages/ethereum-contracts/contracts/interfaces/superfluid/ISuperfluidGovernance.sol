@@ -44,9 +44,9 @@ interface ISuperfluidGovernance {
     /**
      * @dev Update supertoken logic contract to the latest that is managed by the super token factory
      */
-    function batchUpdateSuperTokenLogic(
+    function updateSuperTokenLogic(
         ISuperfluid host,
-        ISuperToken[] calldata tokens) external;
+        ISuperToken token) external;
 
     /// @dev Get configuration as address value
     function getConfigAsAddress(

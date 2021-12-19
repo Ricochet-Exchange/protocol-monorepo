@@ -2,18 +2,10 @@
 pragma solidity 0.7.6;
 
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
-import { IResolver } from "../interfaces/ux/IResolver.sol";
+import { IResolver } from "../interfaces/misc/IResolver.sol";
 
 
-/**
- * @dev A simple implementation of IResolver using OZ AccessControl
- *
- * NOTE:
- * Relevant events for indexing:
- * - OZ Access Control events `RoleGranted`/`RoleRevoked`: admin add/remove
- * - IResolver event `Set`: resolver name updates
- */
-contract Resolver is IResolver, AccessControl {
+contract TestResolver is IResolver, AccessControl {
 
     mapping(string => address) private _registry;
 
@@ -21,10 +13,9 @@ contract Resolver is IResolver, AccessControl {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function set(string calldata name, address target) external override {
+    function set(string calldata name, address target) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "Caller is not an admin");
         _registry[name] = target;
-        emit Set(name, target);
     }
 
     function get(string calldata name) external view override returns (address) {
